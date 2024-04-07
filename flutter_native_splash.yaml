@@ -6,6 +6,7 @@ flutter_native_splash:
   # flutter pub run flutter_native_splash:create
   # To restore Flutter's default white splash screen, run the following command in the terminal:
   # flutter pub run flutter_native_splash:remove
+  # flutter pub run flutter_native_splash:create --path=flutter_native_splash.yaml
 
   # color or background_image is the only required parameter.  Use color to set the background
   # of your splash screen to a solid color.  Use background_image to set the background of your
@@ -50,7 +51,7 @@ flutter_native_splash:
     # 640 pixels in diameter.
     # App icon without an icon background: This should be 1152×1152 pixels, and fit within a circle
     # 768 pixels in diameter.
-    image: images/TicTacToe icon.png
+    image: images/TicTacToeAndroidSlpash.png
 
     # App icon background color.
     #icon_background_color: "#111111"
