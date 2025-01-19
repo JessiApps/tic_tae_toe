@@ -11,6 +11,7 @@ class GamelVM extends ChangeNotifier {
   }
 
   String get actualPlayer => _actualPlayer;
+  String get winner => _winner;
 
   String getCellSymbol(int cellID) {
     return _model.getCellSymbol(cellID);
@@ -28,5 +29,9 @@ class GamelVM extends ChangeNotifier {
     _actualPlayer = _model.actualPlayer;
     _winner = _model.winner;
     notifyListeners();
+  }
+
+  bool isWinner() {
+    return winner != "" ? true : false;
   }
 }

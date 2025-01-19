@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class GameModel {
   // MARK: Attributes
   List<List<Player>> _board = List.generate(
@@ -23,30 +21,68 @@ class GameModel {
   //MARK: Functions
 
   void pressCell(int cellId) {
-    print(_board);
     // Change board value
-    changeBoardValue(cellId);
+    bool changed = changeBoardValue(cellId);
+    print(_board);
     // Check if there is a winner
     isWinner();
+    // Change player
+    if (changed) {
+      changePlayer();
+    }
   }
 
-  void changeBoardValue(int cellID) {
+  bool changeBoardValue(int cellID) {
     final List cords = _getCellCords(cellID);
     final int i = cords[0];
     final int j = cords[1];
 
     if (_board[i][j] == Player.EMPTY) {
       _board[i][j] = _actualPlayer;
-      // Change player
-      _actualPlayer = _actualPlayer == Player.X ? Player.O : Player.X;
+      return true;
     }
+    return false;
   }
 
   bool isWinner() {
-    // TODO: Check if there is a winner
-    // if winner
-    _winner = _actualPlayer == Player.X ? Player.O : Player.X;
+    bool isWinner = false;
+    // Check vertical - horizontal
+    for (int i = 0; (i < 3) && (isWinner == false); i++) {
+      // Horizontal
+      if ((_board[i][0] == _actualPlayer) &&
+          (_board[i][1] == _actualPlayer) &&
+          (_board[i][2] == _actualPlayer)) {
+        isWinner = true;
+      }
+      // Vertical
+      else if ((_board[0][i] == _actualPlayer) &&
+          (_board[1][i] == _actualPlayer) &&
+          (_board[2][i] == _actualPlayer)) {
+        isWinner = true;
+      }
+    }
+
+    // Check diagonal
+    if ((_board[0][0] == _actualPlayer) &&
+        (_board[1][1] == _actualPlayer) &&
+        (_board[2][2] == _actualPlayer)) {
+      isWinner = true;
+    } else if ((_board[0][2] == _actualPlayer) &&
+        (_board[1][1] == _actualPlayer) &&
+        (_board[2][0] == _actualPlayer)) {
+      isWinner = true;
+    }
+
+    // Set winner
+    if (isWinner) {
+      _winner = _actualPlayer;
+      return true;
+    }
     return false;
+  }
+
+  void changePlayer() {
+    _actualPlayer = _actualPlayer == Player.X ? Player.O : Player.X;
   }
 
   void resetGame() {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:tic_tae_toe/utils/responsive.dart';
 import 'package:tic_tae_toe/view_model/game_vm.dart';
@@ -14,12 +13,12 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
-    final Responsive _responsive = Responsive(context);
+    final Responsive responsive = Responsive(context);
     return ChangeNotifierProvider<GamelVM>(
       create: (context) => GamelVM(),
       child: Scaffold(
         body: Center(
-          child: Board(responsive: _responsive),
+          child: Board(responsive: responsive),
         ),
       ),
     );
@@ -59,8 +58,8 @@ class Board extends StatelessWidget {
                 crossAxisSpacing: responsive.wp(2),
                 mainAxisSpacing: responsive.wp(1.9),
                 crossAxisCount: 3,
-                physics: NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.only(
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(
                     top: 0.0, left: 0.0, bottom: 0.0), // Remove top padding
                 shrinkWrap: true, // Wrap content vertically
                 children: createCells(),
@@ -85,17 +84,53 @@ class Cell extends StatelessWidget {
   final int id;
   const Cell({super.key, required this.id});
 
-  pressed(GamelVM provider) {
+  bool pressed(GamelVM provider) {
     print("Pressed $id");
     provider.pressCell(id);
+    return provider.isWinner();
+  }
+
+  Future<void> _showWinnerDialog(BuildContext context, GamelVM provider) async {
+    String title = provider.isWinner() ? "${provider.winner} wins!" : "Draw";
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                // Text('Noughts ${provider.}'),
+                // Text('Would you like to approve of this message?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Reset game'),
+              onPressed: () {
+                provider.resetGame();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<GamelVM>(context);
+
     return GestureDetector(
       onTap: () {
-        pressed(provider);
+        bool isWinner = pressed(provider);
+        if (isWinner) {
+          _showWinnerDialog(context, provider);
+        }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -104,7 +139,7 @@ class Cell extends StatelessWidget {
         child: Center(
           child: Text(
             provider.getCellSymbol(id),
-            style: TextStyle(color: Colors.black, fontSize: 35),
+            style: const TextStyle(color: Colors.black, fontSize: 35),
           ),
         ),
       ),
