@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tic_tae_toe/model/game_model.dart';
 import 'package:tic_tae_toe/utils/responsive.dart';
 import 'package:tic_tae_toe/view_model/game_vm.dart';
 
@@ -84,14 +85,41 @@ class Cell extends StatelessWidget {
   final int id;
   const Cell({super.key, required this.id});
 
-  bool pressed(GamelVM provider) {
+  void pressed(GamelVM provider) {
     print("Pressed $id");
     provider.pressCell(id);
-    return provider.isWinner();
   }
 
-  Future<void> _showWinnerDialog(BuildContext context, GamelVM provider) async {
-    String title = provider.isWinner() ? "${provider.winner} wins!" : "Draw";
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<GamelVM>(context);
+
+    return GestureDetector(
+      onTap: () {
+        pressed(provider);
+        if (provider.gameStatus() != GameStatus.PLAYING) {
+          _showEndGameDialog(context, provider);
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.transparent),
+            color: Colors.transparent),
+        child: Center(
+          child: Text(
+            provider.getCellSymbol(id),
+            style: const TextStyle(color: Colors.black, fontSize: 35),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showEndGameDialog(
+      BuildContext context, GamelVM provider) async {
+    String title = provider.gameStatus() == GameStatus.WINNER
+        ? "${provider.winner} wins!"
+        : "Draw";
 
     return showDialog<void>(
       context: context,
@@ -118,31 +146,6 @@ class Cell extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = Provider.of<GamelVM>(context);
-
-    return GestureDetector(
-      onTap: () {
-        bool isWinner = pressed(provider);
-        if (isWinner) {
-          _showWinnerDialog(context, provider);
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-            border: Border.all(color: Colors.transparent),
-            color: Colors.transparent),
-        child: Center(
-          child: Text(
-            provider.getCellSymbol(id),
-            style: const TextStyle(color: Colors.black, fontSize: 35),
-          ),
-        ),
-      ),
     );
   }
 }

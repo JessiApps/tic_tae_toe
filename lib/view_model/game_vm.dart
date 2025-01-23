@@ -5,9 +5,12 @@ class GamelVM extends ChangeNotifier {
   final GameModel _model = GameModel();
   String _actualPlayer = "";
   String _winner = "";
+  GameStatus _gameStatus = GameStatus.PLAYING;
 
   GamelVM() {
+    _model.resetGame();
     _actualPlayer = _model.actualPlayer;
+    _gameStatus = _model.gameStatus;
   }
 
   String get actualPlayer => _actualPlayer;
@@ -31,7 +34,7 @@ class GamelVM extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool isWinner() {
-    return winner != "" ? true : false;
+  GameStatus gameStatus() {
+    return _model.gameStatus;
   }
 }
