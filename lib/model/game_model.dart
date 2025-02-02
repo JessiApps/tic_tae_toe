@@ -1,14 +1,19 @@
 class GameModel {
   // MARK: Attributes
-  final _numRows = 3;
+  int _boardSize = 3;
   late List<List<Player>> _board;
-  var _actualPlayer = Player.X;
-  var _winner = Player.EMPTY;
+  Player _actualPlayer = Player.X;
+  Player _winner = Player.EMPTY;
   final initPlayer = Player.X;
-  var _numMoves = 0;
-  var _gameStatus = GameStatus.PLAYING;
+  int _moveCount = 0;
+  GameStatus _gameStatus = GameStatus.PLAYING;
 
-  //MARK: Getters
+  //MARK: Constructor
+  GameModel() {
+    generateBoard();
+  }
+
+  //MARK: Getters and setters
   String get actualPlayer => _actualPlayer.getSymbol;
 
   String get winner => _winner.getSymbol;
@@ -20,19 +25,30 @@ class GameModel {
     return _board[cords[0]][cords[1]].getSymbol;
   }
 
+  set boardSize(int size) => _boardSize = size;
+
   //MARK: Functions
+
+  void generateBoard() {
+    _board = List.generate(
+      _boardSize,
+      (_) => List.generate(_boardSize, (_) => Player.EMPTY),
+    );
+  }
 
   void pressCell(int cellId) {
     // Change board value
-    bool changed = changeBoardValue(cellId);
-    _numMoves += 1;
-    print(_board);
-    // Check if there is a winner
-    isWinner();
-    // Check if game is finished
-    isFinished();
-    // Change player
-    if (changed) {
+    if (changeBoardValue(cellId)) {
+      _moveCount++;
+      print(_board);
+      // Check if there is a winner
+      if (isWinner()) {
+        _gameStatus = GameStatus.WINNER;
+        _winner = _actualPlayer;
+      }
+      // Check if game is finished
+      isFinished();
+      // Change player
       changePlayer();
     }
   }
@@ -49,38 +65,28 @@ class GameModel {
     return false;
   }
 
-  void isWinner() {
-    // Check vertical - horizontal
-    for (int i = 0; (i < 3) && (_gameStatus == GameStatus.PLAYING); i++) {
-      // Horizontal
-      if ((_board[i][0] == _actualPlayer) &&
-          (_board[i][1] == _actualPlayer) &&
-          (_board[i][2] == _actualPlayer)) {
-        _gameStatus = GameStatus.WINNER;
-      }
-      // Vertical
-      else if ((_board[0][i] == _actualPlayer) &&
-          (_board[1][i] == _actualPlayer) &&
-          (_board[2][i] == _actualPlayer)) {
-        _gameStatus = GameStatus.WINNER;
-      }
+  bool isWinner() {
+    for (int i = 0; i < _boardSize; i++) {
+      if (_checkRow(i) || _checkColumn(i)) return true;
     }
+    return _checkDiagonals();
+  }
 
-    // Check diagonal
-    if ((_board[0][0] == _actualPlayer) &&
-        (_board[1][1] == _actualPlayer) &&
-        (_board[2][2] == _actualPlayer)) {
-      _gameStatus = GameStatus.WINNER;
-    } else if ((_board[0][2] == _actualPlayer) &&
-        (_board[1][1] == _actualPlayer) &&
-        (_board[2][0] == _actualPlayer)) {
-      _gameStatus = GameStatus.WINNER;
-    }
+  bool _checkRow(int row) {
+    return _board[row].every((cell) => cell == _actualPlayer);
+  }
 
-    // Set winner
-    if (_gameStatus == GameStatus.WINNER) {
-      _winner = _actualPlayer;
-    }
+  bool _checkColumn(int col) {
+    return _board.every((row) => row[col] == _actualPlayer);
+  }
+
+  bool _checkDiagonals() {
+    return (_board[0][0] == _actualPlayer &&
+            _board[1][1] == _actualPlayer &&
+            _board[2][2] == _actualPlayer) ||
+        (_board[0][2] == _actualPlayer &&
+            _board[1][1] == _actualPlayer &&
+            _board[2][0] == _actualPlayer);
   }
 
   void changePlayer() {
@@ -89,8 +95,7 @@ class GameModel {
 
   void isFinished() {
     if (_gameStatus == GameStatus.PLAYING) {
-      int boardSize = _numRows * _numRows;
-      if (boardSize == _numMoves) {
+      if (_moveCount == _boardSize * _boardSize) {
         _gameStatus = GameStatus.DRAW;
       }
     }
@@ -98,10 +103,7 @@ class GameModel {
 
   void resetGame() {
     // Generate board
-    _board = List.generate(
-      _numRows,
-      (_) => List.generate(_numRows, (_) => Player.EMPTY),
-    );
+    generateBoard();
     _actualPlayer = initPlayer;
     _winner = Player.EMPTY;
   }

@@ -1,24 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:tic_tae_toe/model/game_model.dart';
 
-class GamelVM extends ChangeNotifier {
+class GameVM extends ChangeNotifier {
   final GameModel _model = GameModel();
   String _actualPlayer = "";
   String _winner = "";
-  GameStatus _gameStatus = GameStatus.PLAYING;
 
-  GamelVM() {
+  GameVM() {
     _model.resetGame();
     _actualPlayer = _model.actualPlayer;
-    _gameStatus = _model.gameStatus;
   }
 
+  // MARK: Getters and setters
   String get actualPlayer => _actualPlayer;
   String get winner => _winner;
 
   String getCellSymbol(int cellID) {
     return _model.getCellSymbol(cellID);
   }
+
+  GameStatus getGameStatus() {
+    return _model.gameStatus;
+  }
+
+  void setGameDifficulty(int size) {
+    _model.boardSize = size;
+  }
+
+  // Mark: Functions
 
   void resetGame() {
     _model.resetGame();
@@ -32,9 +41,5 @@ class GamelVM extends ChangeNotifier {
     _actualPlayer = _model.actualPlayer;
     _winner = _model.winner;
     notifyListeners();
-  }
-
-  GameStatus gameStatus() {
-    return _model.gameStatus;
   }
 }

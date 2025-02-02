@@ -15,8 +15,8 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     final Responsive responsive = Responsive(context);
-    return ChangeNotifierProvider<GamelVM>(
-      create: (context) => GamelVM(),
+    return ChangeNotifierProvider<GameVM>(
+      create: (context) => GameVM(),
       child: Scaffold(
         body: Center(
           child: Board(responsive: responsive),
@@ -33,7 +33,7 @@ class Board extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Responsive responsive = Responsive(context);
-    final provider = Provider.of<GamelVM>(context);
+    final provider = Provider.of<GameVM>(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -85,19 +85,19 @@ class Cell extends StatelessWidget {
   final int id;
   const Cell({super.key, required this.id});
 
-  void pressed(GamelVM provider) {
+  void pressed(GameVM provider) {
     print("Pressed $id");
     provider.pressCell(id);
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<GamelVM>(context);
+    final provider = Provider.of<GameVM>(context);
 
     return GestureDetector(
       onTap: () {
         pressed(provider);
-        if (provider.gameStatus() != GameStatus.PLAYING) {
+        if (provider.getGameStatus() != GameStatus.PLAYING) {
           _showEndGameDialog(context, provider);
         }
       },
@@ -115,9 +115,8 @@ class Cell extends StatelessWidget {
     );
   }
 
-  Future<void> _showEndGameDialog(
-      BuildContext context, GamelVM provider) async {
-    String title = provider.gameStatus() == GameStatus.WINNER
+  Future<void> _showEndGameDialog(BuildContext context, GameVM provider) async {
+    String title = provider.getGameStatus() == GameStatus.WINNER
         ? "${provider.winner} wins!"
         : "Draw";
 
